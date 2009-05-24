@@ -9,6 +9,12 @@ module CouchRest
       end
       
       module ClassMethods
+        attr_accessor :design_doc, :design_doc_slug_cache, :design_doc_fresh
+        
+        def design_doc
+          @design_doc ||= Design.new(default_design_doc)
+        end
+        
         def design_doc_id
           "_design/#{design_doc_slug}"
         end
@@ -16,7 +22,6 @@ module CouchRest
         def design_doc_slug
           return design_doc_slug_cache if (design_doc_slug_cache && design_doc_fresh)
           funcs = []
-          design_doc ||= Design.new(default_design_doc)
           design_doc['views'].each do |name, view|
             funcs << "#{name}/#{view['map']}#{view['reduce']}"
           end
@@ -40,21 +45,42 @@ module CouchRest
         end
 
         def refresh_design_doc
-          did = design_doc_id
-          saved = database.get(did) rescue nil
+          design_doc['_id'] = design_doc_id
+          design_doc.delete('_rev')
+          #design_doc.database = nil
+          self.design_doc_fresh = true
+        end
+
+        # Save the design doc onto the default database, and update the
+        # design_doc attribute
+        def save_design_doc
+          refresh_design_doc unless design_doc_fresh
+          self.design_doc = update_design_doc(design_doc)
+        end
+
+        # Save the design doc onto a target database in a thread-safe way,
+        # not modifying the model's design_doc
+        def save_design_doc_on(db)
+          update_design_doc(Design.new(design_doc), db)
+        end
+
+        private
+
+        # Writes out a design_doc to a given database, returning the
+        # updated design doc
+        def update_design_doc(design_doc, db = database)
+          saved = db.get(design_doc['_id']) rescue nil
           if saved
             design_doc['views'].each do |name, view|
               saved['views'][name] = view
             end
-            database.save_doc(saved)
-            self.design_doc = saved
+            db.save_doc(saved)
+            saved
           else
-            design_doc['_id'] = did
-            design_doc.delete('_rev')
-            design_doc.database = database
+            design_doc.database = db
             design_doc.save
+            design_doc
           end
-          self.design_doc_fresh = true
         end
         
       end # module ClassMethods

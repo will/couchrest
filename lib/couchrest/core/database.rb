@@ -17,7 +17,7 @@ module CouchRest
       @name = name
       @server = server
       @host = server.uri
-      @uri = @root = "#{host}/#{name}"
+      @uri = @root = "#{host}/#{name.gsub('/','%2F')}"
       @streamer = Streamer.new(self)
       @bulk_save_cache = []
       @bulk_save_cache_limit = 500  # must be smaller than the uuid count
@@ -42,6 +42,11 @@ module CouchRest
       else
         CouchRest.get url
       end
+    end
+  
+    # load a set of documents by passing an array of ids
+    def get_bulk(ids)
+      documents(:keys => ids, :include_docs => true)
     end
   
     # POST a temporary view function to CouchDB for querying. This is not
