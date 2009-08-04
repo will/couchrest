@@ -59,6 +59,28 @@ module CouchRest
           end
         end
         
+        # Load several documents from the database by ids
+        # No exceptions will be raised if the document isn't found
+        #
+        # ==== Returns
+        # [Objects]:: if the document was found
+        # documents that are not found are nil
+        # or
+        # Nil:: if there was an error
+        # 
+        # === Parameters
+        # ids<Array> of <String, Integer>:: Document IDs
+        # db<Database>:: optional option to pass a custom database to use
+        def bulk_get(ids, db = database)
+          begin
+            rows = db.bulk_load(ids)['rows']
+            docs = rows.map{ |row| row['doc'] }
+          rescue
+            nil
+          else
+            docs.map{|doc| new(doc) if doc }
+          end
+        end
         # Load a document from the database by id
         # An exception will be raised if the document isn't found
         #

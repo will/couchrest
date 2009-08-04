@@ -226,7 +226,36 @@ describe "ExtendedDocument" do
        lambda{foundart = Article.get!('matt aimonetti')}.should raise_error
     end
   end
-
+  
+  describe "bulk getting several models" do
+    before(:all) do
+      @art1 = Article.new(:title => 'All About Getting')
+      @art1.save
+      
+      @art2 = Article.new(:title => 'Even More About Getting')
+      @art2.save
+      
+      @art3 = Article.new(:title => 'Not Really About Getting')
+      @art3.save
+    end
+    
+    it "should load and instantiate all" do
+      foundarts = Article.bulk_get [@art1.id, @art2.id, @art3.id]
+      
+      foundarts[0].title.should == @art1.title
+      foundarts[1].title.should == @art2.title
+      foundarts[2].title.should == @art3.title
+    end
+    
+    it "should return nil if `get` is used and the document doesn't exist" do
+      foundarts = Article.bulk_get [@art1.id, "bad id", @art3.id]
+      
+      foundarts[0].title.should == @art1.title
+      foundarts[1].should be_nil
+      foundarts[2].title.should == @art3.title
+    end                     
+  end
+  
   describe "getting a model with a subobjects array" do
     before(:all) do
       course_doc = {
