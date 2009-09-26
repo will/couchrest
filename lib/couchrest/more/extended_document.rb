@@ -40,11 +40,7 @@ module CouchRest
     
     def initialize(passed_keys={})
       apply_defaults # defined in CouchRest::Mixins::Properties
-      passed_keys.each do |k,v|
-        if self.respond_to?("#{k}=")
-          self.send("#{k}=", passed_keys.delete(k))
-        end
-      end if passed_keys
+			set_properties(passed_keys)
       super
       cast_keys      # defined in CouchRest::Mixins::Properties
       unless self['_id'] && self['_rev']
@@ -150,12 +146,8 @@ module CouchRest
       # make a copy, we don't want to change arguments
       attrs = hash.dup
       %w[_id _rev created_at updated_at].each {|attr| attrs.delete(attr)}
-      attrs.each do |k, v|
-        raise NoMethodError, "#{k}= method not available, use property :#{k}" unless self.respond_to?("#{k}=")
-      end      
-      attrs.each do |k, v|
-        self.send("#{k}=",v)
-      end
+      check_properties_exist(attrs)
+		  set_properties(attrs)
     end
     alias :attributes= :update_attributes_without_saving
 
@@ -280,6 +272,19 @@ module CouchRest
         end
       end
     end
-    
+
+		def check_properties_exist(attrs)
+      attrs.each do |k, v|
+        raise NoMethodError, "#{k}= method not available, use property :#{k}" unless self.respond_to?("#{k}=")
+      end      
+		end
+
+		def set_properties(attrs)
+      attrs.each do |k,v|
+        if self.respond_to?("#{k}=")
+          self.send("#{k}=", attrs.delete(k))
+        end
+      end
+		end
   end
 end
