@@ -40,7 +40,7 @@ module CouchRest
     
     def initialize(passed_keys={})
       apply_defaults # defined in CouchRest::Mixins::Properties
-			set_properties(passed_keys)
+			set_attributes(passed_keys)
       super
       cast_keys      # defined in CouchRest::Mixins::Properties
       unless self['_id'] && self['_rev']
@@ -147,7 +147,7 @@ module CouchRest
       attrs = hash.dup
       %w[_id _rev created_at updated_at].each {|attr| attrs.delete(attr)}
       check_properties_exist(attrs)
-		  set_properties(attrs)
+			set_attributes(attrs)
     end
     alias :attributes= :update_attributes_without_saving
 
@@ -273,13 +273,15 @@ module CouchRest
       end
     end
 
+		private
+
 		def check_properties_exist(attrs)
       attrs.each do |k, v|
         raise NoMethodError, "#{k}= method not available, use property :#{k}" unless self.respond_to?("#{k}=")
       end      
 		end
 
-		def set_properties(attrs)
+		def set_attributes(attrs)
       attrs.each do |k,v|
         if self.respond_to?("#{k}=")
           self.send("#{k}=", attrs.delete(k))
