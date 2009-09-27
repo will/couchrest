@@ -14,6 +14,7 @@ module CouchRest
     include CouchRest::Mixins::ExtendedAttachments
     include CouchRest::Mixins::ClassProxy
     include CouchRest::Mixins::Collection
+		include CouchRest::Mixins::AttributeProtection
 
     def self.subclasses
       @subclasses ||= []
@@ -281,7 +282,8 @@ module CouchRest
       end      
 		end
 
-		def set_attributes(attrs)
+		def set_attributes(hash)
+			attrs = remove_protected_attributes(hash)
       attrs.each do |k,v|
         if self.respond_to?("#{k}=")
           self.send("#{k}=", attrs.delete(k))
