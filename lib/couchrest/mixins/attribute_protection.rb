@@ -47,7 +47,7 @@ module CouchRest
 				elsif has_accessable && !has_protected
 					properties.reject { |prop| prop.options[:accessable] }
 				else
-					raise "Set either :accessable or :protected, but not both"
+					raise "Set either :accessable or :protected for #{self.class}, but not both"
 				end
 			end
 		end

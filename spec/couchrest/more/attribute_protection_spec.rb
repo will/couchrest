@@ -80,3 +80,15 @@ describe "ExtendedDocument", "protected flag" do
 		user.admin.should == false
 	end
 end
+
+describe "ExtendedDocument", "protected flag" do
+  class WithBoth < CouchRest::ExtendedDocument
+    use_database TEST_SERVER.default_database
+		property :name, :accessable => true
+		property :admin, :default => false, :protected => true
+	end
+
+	it "should raise an error when both are set" do
+    expect { WithBoth.new }.to raise_error 
+	end
+end
