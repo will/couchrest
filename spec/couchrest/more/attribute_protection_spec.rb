@@ -30,6 +30,12 @@ describe "ExtendedDocument", "accessable flag" do
 		property :admin, :default => false
 	end
 
+	it "should recoginze accessable properties" do
+    props = WithAccessable.accessable_properties.map { |prop| prop.name}
+		props.should include("name")
+		props.should_not include("admin")
+	end
+
 	it "should protect non-accessable properties set through new" do
     user = WithAccessable.new(:name => "will", :admin => true) 
 
@@ -51,6 +57,12 @@ describe "ExtendedDocument", "protected flag" do
     use_database TEST_SERVER.default_database
 		property :name
 		property :admin, :default => false, :protected => true
+	end
+
+	it "should recoginze protected properties" do
+    props = WithProtected.protected_properties.map { |prop| prop.name}
+		props.should_not include("name")
+		props.should include("admin")
 	end
 
 	it "should protect non-accessable properties set through new" do
