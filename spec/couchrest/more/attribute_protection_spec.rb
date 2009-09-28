@@ -24,27 +24,27 @@ describe "ExtendedDocument", "no declarations" do
 end
 
 describe "ExtendedDocument", "accessible flag" do
-  class Withaccessible < CouchRest::ExtendedDocument
+  class WithAccessible < CouchRest::ExtendedDocument
     use_database TEST_SERVER.default_database
     property :name, :accessible => true
     property :admin, :default => false
   end
 
   it "should recognize accessible properties" do
-    props = Withaccessible.accessible_properties.map { |prop| prop.name}
+    props = WithAccessible.accessible_properties.map { |prop| prop.name}
     props.should include("name")
     props.should_not include("admin")
   end
 
   it "should protect non-accessible properties set through new" do
-    user = Withaccessible.new(:name => "will", :admin => true) 
+    user = WithAccessible.new(:name => "will", :admin => true) 
 
     user.name.should == "will"
     user.admin.should == false
   end
 
   it "should protect non-accessible properties set through attributes=" do
-    user = Withaccessible.new
+    user = WithAccessible.new
     user.attributes = {:name => "will", :admin => true}
 
     user.name.should == "will"
