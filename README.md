@@ -1,3 +1,7 @@
+# This fork
+this fork has an important security patch to couchrest that prevents attackers from setting any field in your documents if you're using update_attributes(params) or new(params) in your controllers.
+More info on the complete patch at will@7dd75f0fe2df168b59d2efca9609a92ec12f77ac
+
 # CouchRest: CouchDB, close to the metal
 
 CouchRest is based on [CouchDB's couch.js test
