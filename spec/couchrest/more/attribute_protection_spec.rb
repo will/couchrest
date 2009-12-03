@@ -21,6 +21,17 @@ describe "ExtendedDocument", "no declarations" do
     user.name.should == "will"
     user.phone.should == "555-5555"
   end
+  
+  it "should recreate from the database properly" do
+    user = NoProtection.new
+    user.name = "will"
+    user.phone = "555-5555"
+    user.save!
+    
+    user = NoProtection.get(user.id)
+    user.name.should == "will"
+    user.phone.should == "555-5555"
+  end
 end
 
 describe "ExtendedDocument", "accessible flag" do
@@ -50,6 +61,17 @@ describe "ExtendedDocument", "accessible flag" do
     user.name.should == "will"
     user.admin.should == false
   end
+  
+  it "should recreate from the database properly" do
+    user = WithAccessible.new
+    user.name = "will"
+    user.admin = true
+    user.save!
+    
+    user = WithAccessible.get(user.id)
+    user.name.should == "will"
+    user.admin.should == true
+  end
 end
 
 describe "ExtendedDocument", "protected flag" do
@@ -78,6 +100,17 @@ describe "ExtendedDocument", "protected flag" do
 
     user.name.should == "will"
     user.admin.should == false
+  end
+  
+  it "should recreate from the database properly" do
+    user = WithProtected.new
+    user.name = "will"
+    user.admin = true
+    user.save!
+    
+    user = WithProtected.get(user.id)
+    user.name.should == "will"
+    user.admin.should == true
   end
 end
 
