@@ -132,4 +132,12 @@ describe "ExtendedDocument", "from database" do
     reloaded = WithProtected.get!( @user.id )
     verify_attrs reloaded 
   end
+
+  it "ExtendedDocument#all should not strip protected attributes" do
+    # all creates a CollectionProxy
+    docs = WithProtected.all(:key => @user.id)
+    docs.size.should == 1
+    reloaded = docs.first
+    verify_attrs reloaded 
+  end
 end
