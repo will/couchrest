@@ -55,7 +55,7 @@ module CouchRest
           rescue
             nil
           else
-            new(doc)
+            create_from_database(doc)
           end
         end
         
