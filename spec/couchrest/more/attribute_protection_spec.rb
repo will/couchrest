@@ -61,17 +61,6 @@ describe "ExtendedDocument", "accessible flag" do
     user.name.should == "will"
     user.admin.should == false
   end
-  
-  it "should recreate from the database properly" do
-    user = WithAccessible.new
-    user.name = "will"
-    user.admin = true
-    user.save!
-    
-    user = WithAccessible.get(user.id)
-    user.name.should == "will"
-    user.admin.should == true
-  end
 end
 
 describe "ExtendedDocument", "protected flag" do
@@ -101,17 +90,6 @@ describe "ExtendedDocument", "protected flag" do
     user.name.should == "will"
     user.admin.should == false
   end
-  
-  it "should recreate from the database properly" do
-    user = WithProtected.new
-    user.name = "will"
-    user.admin = true
-    user.save!
-    
-    user = WithProtected.get(user.id)
-    user.name.should == "will"
-    user.admin.should == true
-  end
 end
 
 describe "ExtendedDocument", "protected flag" do
@@ -123,5 +101,35 @@ describe "ExtendedDocument", "protected flag" do
 
   it "should raise an error when both are set" do
     lambda { WithBoth.new }.should raise_error 
+  end
+end
+
+describe "ExtendedDocument", "from database" do
+  class WithProtected < CouchRest::ExtendedDocument
+    use_database TEST_SERVER.default_database
+    property :name
+    property :admin, :default => false, :protected => true
+  end
+  
+  before(:each) do
+    @user = WithProtected.new
+    @user.name = "will"
+    @user.admin = true
+    @user.save!
+  end
+
+  def verify_attrs(user)
+    user.name.should  == "will"
+    user.admin.should == true
+  end
+
+  it "ExtendedDocument#get should not strip protected attributes" do
+    reloaded = WithProtected.get( @user.id )
+    verify_attrs reloaded 
+  end
+
+  it "ExtendedDocument#get! should not strip protected attributes" do
+    reloaded = WithProtected.get!( @user.id )
+    verify_attrs reloaded 
   end
 end
