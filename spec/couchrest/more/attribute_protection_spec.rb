@@ -109,6 +109,7 @@ describe "ExtendedDocument", "from database" do
     use_database TEST_SERVER.default_database
     property :name
     property :admin, :default => false, :protected => true
+    view_by :name
   end
   
   before(:each) do
@@ -137,6 +138,12 @@ describe "ExtendedDocument", "from database" do
     # all creates a CollectionProxy
     docs = WithProtected.all(:key => @user.id)
     docs.size.should == 1
+    reloaded = docs.first
+    verify_attrs reloaded 
+  end
+
+  it "views should not strip protected attributes" do
+    docs = WithProtected.by_name(:startkey => "will", :endkey => "will")
     reloaded = docs.first
     verify_attrs reloaded 
   end
