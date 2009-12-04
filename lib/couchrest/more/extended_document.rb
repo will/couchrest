@@ -39,6 +39,10 @@ module CouchRest
     define_callbacks :update, "result == :halt"
     define_callbacks :destroy, "result == :halt"
 
+    # Creates a new instance, bypassing attribute protection
+    #
+    # ==== Returns
+    #  a document instance
     def self.create_from_database(passed_keys={})
       new(passed_keys, :directly_set_attributes => true)      
     end
